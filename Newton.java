@@ -1,4 +1,3 @@
-package newton;
 import java.util.Locale;
 class Newton {
 	
