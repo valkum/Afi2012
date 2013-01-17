@@ -1,5 +1,6 @@
 /**
  * Rudolf Floren - 318099
+ * Zum 2. mal ist der Übungspartner abgesprungen.
  */
 public class Lipschitz {
 	private double a;
@@ -11,26 +12,26 @@ public class Lipschitz {
 
 	public static void main (String[] args) {
 		double[] x_0 = new double[2];
-		Lipschitz l1 = new Lipschitz(0d, 4d);
+		Lipschitz l1 = new Lipschitz(0., 4.);
 		System.out.printf("[0, 4]^2   : %.20f\n", l1.approx());
-		Lipschitz l2 = new Lipschitz(-5/2, 5d);
+		Lipschitz l2 = new Lipschitz(-5./2., 5.);
 		System.out.printf("[-5/2, 5]^2: %.20f\n", l2.approx());
-		Lipschitz l3 = new Lipschitz(-3d, 8d);
+		Lipschitz l3 = new Lipschitz(-3., 8.);
 		System.out.printf("[-3, 8]^2  : %.20f\n", l3.approx());
 		double eps = Math.pow(10, -5);
 		int m = 1000;
 		System.out.println("Fixpunktiteration (i)");
 		x_0[0] = 0.;
 		x_0[1] = 0.;
-		iterate(x_0, l1.approx(), eps, m);
+		iterate(x_0, eps, l1.approx(), m);
 		System.out.println("Fixpunktiteration (ii)");
 		x_0[0] = -5./2.;
 		x_0[1] = 5.;
-		iterate(x_0, l2.approx(), eps, m);
+		iterate(x_0, eps, l2.approx(), m);
 		System.out.println("Fixpunktiteration (iii)");
 		x_0[0] = 15./2.;
 		x_0[1] = -2.;
-		iterate(x_0, l3.approx(), eps, m);
+		iterate(x_0, eps, l3.approx(), m);
 
 	}
 	public Lipschitz (double a, double b) {
@@ -46,8 +47,8 @@ public class Lipschitz {
 
 	public double[] x(int i, int j) {
 		double[] x = new double[2];
-		x[0] = a + i*((this.b-this.a)/10);
-		x[1] = a+ j*((this.b-this.a)/10);
+		x[0] = this.a + i*((this.b-this.a)/10);
+		x[1] = this.a + j*((this.b-this.a)/10);
 		return x;
 	}
 	public static double norm(double[] x) {
@@ -82,7 +83,7 @@ public class Lipschitz {
 							L_ijkl = zaehler/nenner;
 						}
 						if(L_max == null) L_max = L_ijkl; // erster durchlauf L_max ist noch leer.
-						if(L_max <= L_ijkl) L_max = L_ijkl;
+						if(L_ijkl > L_max) L_max = L_ijkl;
 					}
 				}
 			}
@@ -96,24 +97,24 @@ public class Lipschitz {
 		double[] x_k = x_0;
 		boolean end = false;
 		int k = 0;
-		while (1==1) {
-			if (L < 1) {
-				if (end || (k > m)) 
-					break;
-				double[] z = {norm(vektordiff(x_k, xdach)), norm(vektordiff(x_k, xdach2)), norm(vektordiff(x_k, xdach3)), norm(vektordiff(x_k, xdach4)),};
-				err = min(z);
-				double L_k =  (Math.pow(L, k)/1-L)*norm(vektordiff(x_1,x_0));
-				end = ((err <= L_k) && (L <= eps));
-			} else if (L >= 1) {
-				if (k > m) 
-					break;
+		while (k < m) {
+			if(k != 0){
+				x_k = phi(x_k);
 			}
-			x_k = phi(x_k);
-			m--;
+			// kleinsten Fixpunkt auswählen
+			double[] z = {norm(vektordiff(x_k, xdach)), norm(vektordiff(x_k, xdach2)), norm(vektordiff(x_k, xdach3)), norm(vektordiff(x_k, xdach4)),};
+			err = min(z);
+			double L_k =  (Math.pow(L, k)/1-L)*norm(vektordiff(x_1,x_0));
+			System.out.printf("err = %.20f\n", err);
+			System.out.printf("L_k = %.20f\n", L_k);
+			System.out.printf("eps = %.20f\n", eps);
+			end = ((err <= L_k) && (L_k <= eps));
+			System.out.println(end);
+			if (L < 1 && end) break;
 			k++;
 		}
 
-		System.out.printf("x_%d = (%f,%f)\n", k, x_k[0], x_k[1]);
+		System.out.printf("x_k = (%f, %f)\n", x_k[0], x_k[1]);
 		System.out.printf("err = %f\n", err);
 		System.out.printf("k = %d\n", k);
 	}
